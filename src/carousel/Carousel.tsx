@@ -11,7 +11,9 @@ import {
     NativeScrollEvent,
     LayoutChangeEvent,
     GestureResponderEvent,
-    ViewStyle
+    ViewStyle,
+    FlatListProps,
+    ScrollViewProps
 } from 'react-native';
 import shallowCompare from 'react-addons-shallow-compare';
 import {
@@ -1226,7 +1228,7 @@ export class Carousel<TData> extends React.Component<
       };
   }
 
-  _getComponentStaticProps () {
+  _getComponentStaticProps (): ScrollViewProps | FlatListProps<TData> & {ref: React.LegacyRef<any>, contentContainerStyle: any[]} {
       const { hideCarousel } = this.state;
       const {
           activeSlideAlignment,
@@ -1334,6 +1336,8 @@ export class Carousel<TData> extends React.Component<
       typeof useScrollView === 'function' ? useScrollView : Animated.ScrollView;
 
       return this._needsScrollView() || !Animated.FlatList ? (
+          // @ts-expect-error Seems complicated to make TS 100% happy, while sharing that many things between
+          // flatlist && scrollview implementation. I'll prob try to rewrite parts of the logic to overcome that.
           <ScrollViewComponent {...props}>
               {this._getCustomData().map((item, index) => {
                   return this._renderItem({ item, index });
